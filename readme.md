@@ -81,25 +81,22 @@ https://github.com/keithrozario/Klayers/tree/master/deployments/python3.8/arns
 # ETL Process:
 For details check etl_process.py
 ```
-### 4. Create .env file and put environment variables if need
+### 5. Create .env file and put environment variables if need
 ```env
 APPLICATION=your project name
 STAGE=your stage
 REGION=your region
 TZ_LOCAL=your timezone
 ```
-### 5. Modify serverless.yml file
+### 6. Modify serverless.yml file
 ```Powershell
 For details serverless.yml
 ```
 
-### 6. Deploy and Cleaning up 
+### 7. Deploy
 ```Powershell
 # Deploy to aws 
 % sls deploy
-
-# Delete the stack from aws 
-% sls remove
 ```
 
 # Step 3 — Event Notification for S3 Bucket

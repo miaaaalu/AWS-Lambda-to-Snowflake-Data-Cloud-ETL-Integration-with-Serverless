@@ -75,37 +75,46 @@ CREATE OR REPLACE PIPE DimDate_Pipe
     FROM @S3_to_Snowflake_Stage/DimDate.csv
     FILE_FORMAT = (FORMAT_NAME = DataPipeline_CSV_Format);
     
-CREATE OR REPLACE PIPE Dimplatform_Pipe
+CREATE OR REPLACE PIPE DimDate_Pipe
     AUTO_INGEST = TRUE 
-    AS 
-    COPY INTO DIMPLATFORM 
-    FROM @S3_to_Snowflake_Stage/Dimplatform.csv
+    AS COPY INTO DIMDATE 
+    FROM @S3_to_Snowflake_Stage/dimdate/
     FILE_FORMAT = (FORMAT_NAME = DataPipeline_CSV_Format);
     
+CREATE OR REPLACE PIPE Dimplatform_Pipe
+    AUTO_INGEST = TRUE 
+    AS COPY INTO DIMPLATFORM 
+    FROM @S3_to_Snowflake_Stage/dimplatform/
+    FILE_FORMAT = (FORMAT_NAME = DataPipeline_CSV_Format);
     
 CREATE OR REPLACE PIPE DimSite_Pipe
     AUTO_INGEST = TRUE 
-    AS 
-    COPY INTO DIMSITE 
-    FROM @S3_to_Snowflake_Stage/DimSite.csv
+    AS COPY INTO DIMSITE 
+    FROM @S3_to_Snowflake_Stage/dimsite/
     FILE_FORMAT = (FORMAT_NAME = DataPipeline_CSV_Format);
     
 CREATE OR REPLACE PIPE DimVideo_Pipe
     AUTO_INGEST = TRUE 
-    AS 
-    COPY INTO DIMVIDEO 
-    FROM @S3_to_Snowflake_Stage/Dimvideo.csv
+    AS COPY INTO DIMVIDEO 
+    FROM @S3_to_Snowflake_Stage/dimvideo/
     FILE_FORMAT = (FORMAT_NAME = DataPipeline_CSV_Format);
 
 CREATE OR REPLACE PIPE FactTable_Pipe
     AUTO_INGEST = TRUE 
-    AS 
-    COPY INTO FactTable 
-    FROM @S3_to_Snowflake_Stage/FactTable.csv
+    AS COPY INTO FactTable 
+    FROM @S3_to_Snowflake_Stage/facttable/
     FILE_FORMAT = (FORMAT_NAME = DataPipeline_CSV_Format);
 
-//check pipes
-SHOW PIPES;
+// PIPES
+SHOW PIPES; //check pipes to get notification_channel url
+SELECT SYSTEM$PIPE_STATUS('<PIPE NAME>'); // Check Pipe Status if need
+SELECT * FROM table(information_schema.copy_history(table_name=>'<TABLE NAME>', start_time=> dateadd(hours, -1, current_timestamp()))); //Show PIPE COPY history in specific table 
+ALTER PIPE <PIPE NAME> REFRESH; // REFRESH PIPE 
 
-//save notification_channel url for S3 Event Notification
+// EXTERNAL STAGE
+LIST @S3_to_Snowflake_Stage; // Check files in external stage 
+REMOVE '@S3_to_Snowflake_Stage/dimdate/date.csv'; //remove single file from external stage 
+REMOVE @S3_to_Snowflake_Stage pattern='.*.csv';//remove all files from external stage 
+
+// save notification_channel url for S3 Event Notification
 arn:aws:sqs:ap-southeast-2:123456789012:sf-snowpipe-AIDAXCWW6DZILFHBVQMMV-C8qof2NHZLas0q_FNvbOcw
