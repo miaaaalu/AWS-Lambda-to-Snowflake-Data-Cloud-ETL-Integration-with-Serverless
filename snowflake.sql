@@ -6,7 +6,7 @@ create or replace warehouse mywarehouse with
   initially_suspended=true;
 
 //create database
-CREATE OR REPLACE DATABASE DATA_PIPELINE;
+CREATE OR REPLACE DATABASE ETL_PIPELINE;
 
 //create DimDate table
 CREATE OR REPLACE TABLE DimDate (
@@ -61,10 +61,10 @@ CREATE OR REPLACE FILE FORMAT DataPipeline_CSV_Format
     record_delimiter = '\\n'
     FIELD_OPTIONALLY_ENCLOSED_BY = '"';
 
-//create a stage
+//create a external stage
 CREATE OR REPLACE STAGE S3_to_Snowflake_Stage
-    URL="S3://dst-bucket-pipeline"
-    CREDENTIALS = (AWS_KEY_ID = 'AKIAU2DYEPIAZB7BHABG' AWS_SECRET_KEY = 'H67rq0YEdAZMLtn+xS5Dc89zgaaEScGKGUBcRhjl')
+    URL="S3://dst-bucket-snowpipeline"
+    CREDENTIALS = (AWS_KEY_ID = '**************' AWS_SECRET_KEY = '**************')
     file_format = DataPipeline_CSV_Format;
 
 //create a pipe
@@ -107,13 +107,5 @@ CREATE OR REPLACE PIPE FactTable_Pipe
 //check pipes
 SHOW PIPES;
 
-//check satging layer to see if file are successfully uploaed
-list @S3_to_Snowflake_Stage;  
-
 //save notification_channel url for S3 Event Notification
-arn:aws:sqs:ap-southeast-2:486855810640:sf-snowpipe-AIDAXCWW6DZILFHBVQMMV-C8qof2NHZLas0q_FNvbOcw
-
-//connect to snowsql 
-snowsql -a rj53482.ap-southeast-2 -u MIALU;
-
-SELECT * FROM DIMDATE;
+arn:aws:sqs:ap-southeast-2:123456789012:sf-snowpipe-AIDAXCWW6DZILFHBVQMMV-C8qof2NHZLas0q_FNvbOcw

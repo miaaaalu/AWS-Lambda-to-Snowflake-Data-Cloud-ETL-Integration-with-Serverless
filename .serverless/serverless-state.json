@@ -1,0 +1,443 @@
+{
+  "service": {
+    "service": "my-etl-process",
+    "serviceObject": {
+      "name": "my-etl-process"
+    },
+    "provider": {
+      "name": "aws",
+      "runtime": "python3.8",
+      "memorySize": 256,
+      "timeout": 300,
+      "deploymentBucket": "serverless-deploy-bucket-mia",
+      "stage": "dev",
+      "region": "ap-southeast-2",
+      "versionFunctions": true,
+      "layers": [
+        "arn:aws:lambda:ap-southeast-2:770693421928:layer:Klayers-python38-pandas:48"
+      ],
+      "iamRoleStatements": [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "s3:HeadObject",
+            "s3:GetObject",
+            "s3:putObject"
+          ],
+          "Resource": [
+            "arn:aws:s3:::src-bucket-datapipeline/*",
+            "arn:aws:s3:::dst-bucket-snowpipeline/*"
+          ]
+        },
+        {
+          "Effect": "Allow",
+          "Action": [
+            "logs:*"
+          ],
+          "Resource": "*"
+        }
+      ],
+      "environment": {
+        "TZ_LOCAL": "Pacific/Auckland"
+      },
+      "deploymentBucketObject": {
+        "name": "serverless-deploy-bucket-mia",
+        "maxPreviousDeploymentArtifacts": 3
+      },
+      "compiledCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "EtlUnderscoreprocessLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/my_etl_lambda"
+            }
+          },
+          "IamRoleLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "my-etl-process",
+                        "dev",
+                        "lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogStream",
+                          "logs:CreateLogGroup"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/my_etl_lambda:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/my_etl_lambda:*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "$ref": "$[\"service\"][\"provider\"][\"iamRoleStatements\"][0]"
+                      },
+                      {
+                        "$ref": "$[\"service\"][\"provider\"][\"iamRoleStatements\"][1]"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Path": "/",
+              "RoleName": {
+                "Fn::Join": [
+                  "-",
+                  [
+                    "my-etl-process",
+                    "dev",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    "lambdaRole"
+                  ]
+                ]
+              }
+            }
+          },
+          "EtlUnderscoreprocessLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-deploy-bucket-mia",
+                "S3Key": "serverless/my-etl-process/dev/1645564343421-2022-02-22T21:12:23.421Z/my-etl-process.zip"
+              },
+              "Handler": "etl_process.lambda_handler",
+              "Runtime": "python3.8",
+              "FunctionName": "my_etl_lambda",
+              "MemorySize": 256,
+              "Timeout": 300,
+              "Description": "AWS-Lambda-to-Snowflake-Data-Cloud-ETL-Integration",
+              "Environment": {
+                "Variables": {
+                  "TZ_LOCAL": "Pacific/Auckland"
+                }
+              },
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Layers": {
+                "$ref": "$[\"service\"][\"provider\"][\"layers\"]"
+              }
+            },
+            "DependsOn": [
+              "EtlUnderscoreprocessLogGroup"
+            ]
+          },
+          "EtlUnderscoreprocessLambdaVersionmYGNNmZTbQTmyUbXFl3PJ3uAmjGcAhMgbZckRsqQf8": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "EtlUnderscoreprocessLambdaFunction"
+              },
+              "CodeSha256": "1nvdrZb3E7SF/1uRn3ZOXyhNaawcqVtfdgugjEg03xA=",
+              "Description": "AWS-Lambda-to-Snowflake-Data-Cloud-ETL-Integration"
+            }
+          },
+          "EtlUnderscoreprocessCustomS31": {
+            "Type": "Custom::S3",
+            "Version": 1,
+            "DependsOn": [
+              "EtlUnderscoreprocessLambdaFunction",
+              "CustomDashresourceDashexistingDashs3LambdaFunction"
+            ],
+            "Properties": {
+              "ServiceToken": {
+                "Fn::GetAtt": [
+                  "CustomDashresourceDashexistingDashs3LambdaFunction",
+                  "Arn"
+                ]
+              },
+              "FunctionName": "my_etl_lambda",
+              "BucketName": "src-bucket-datapipeline",
+              "BucketConfigs": [
+                {
+                  "Event": "s3:ObjectCreated:*",
+                  "Rules": []
+                }
+              ]
+            }
+          },
+          "IamRoleCustomResourcesLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "dev",
+                        "my-etl-process",
+                        "custom-resources-lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Resource": {
+                          "Fn::Join": [
+                            ":",
+                            [
+                              "arn",
+                              {
+                                "Ref": "AWS::Partition"
+                              },
+                              "s3",
+                              "",
+                              "",
+                              "src-bucket-datapipeline"
+                            ]
+                          ]
+                        },
+                        "Action": [
+                          "s3:PutBucketNotification",
+                          "s3:GetBucketNotification"
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Resource": {
+                          "Fn::Join": [
+                            ":",
+                            [
+                              "arn",
+                              {
+                                "Ref": "AWS::Partition"
+                              },
+                              "lambda",
+                              {
+                                "Ref": "AWS::Region"
+                              },
+                              {
+                                "Ref": "AWS::AccountId"
+                              },
+                              "function",
+                              "*"
+                            ]
+                          ]
+                        },
+                        "Action": [
+                          "lambda:AddPermission",
+                          "lambda:RemovePermission"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "CustomDashresourceDashexistingDashs3LambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": "serverless-deploy-bucket-mia",
+                "S3Key": "serverless/my-etl-process/dev/1645564343421-2022-02-22T21:12:23.421Z/custom-resources.zip"
+              },
+              "FunctionName": "my-etl-process-dev-custom-resource-existing-s3",
+              "Handler": "s3/handler.handler",
+              "MemorySize": 1024,
+              "Runtime": "nodejs14.x",
+              "Timeout": 180,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleCustomResourcesLambdaExecution",
+                  "Arn"
+                ]
+              }
+            },
+            "DependsOn": [
+              "IamRoleCustomResourcesLambdaExecution"
+            ]
+          },
+          "SnowflakeStagingOutbucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "AccessControl": "BucketOwnerFullControl",
+              "BucketName": "dst-bucket-snowpipeline"
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": "serverless-deploy-bucket-mia",
+            "Export": {
+              "Name": "sls-my-etl-process-dev-ServerlessDeploymentBucketName"
+            }
+          },
+          "EtlUnderscoreprocessLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "EtlUnderscoreprocessLambdaVersionmYGNNmZTbQTmyUbXFl3PJ3uAmjGcAhMgbZckRsqQf8"
+            },
+            "Export": {
+              "Name": "sls-my-etl-process-dev-EtlUnderscoreprocessLambdaFunctionQualifiedArn"
+            }
+          }
+        }
+      },
+      "vpc": {}
+    },
+    "custom": {
+      "pythonRequirements": {
+        "dockerizePip": false
+      },
+      "prune": {
+        "automatic": true,
+        "number": 3
+      },
+      "dotenv": {
+        "include": [
+          "TZ_LOCAL"
+        ]
+      }
+    },
+    "plugins": [
+      "serverless-prune-plugin",
+      "serverless-python-requirements",
+      "serverless-dotenv-plugin"
+    ],
+    "pluginsData": {},
+    "functions": {
+      "etl_process": {
+        "handler": "etl_process.lambda_handler",
+        "name": "my_etl_lambda",
+        "description": "AWS-Lambda-to-Snowflake-Data-Cloud-ETL-Integration",
+        "events": [
+          {
+            "s3": {
+              "bucket": "src-bucket-datapipeline",
+              "event": "s3:ObjectCreated:*",
+              "existing": true
+            }
+          }
+        ],
+        "package": {},
+        "memory": 256,
+        "timeout": 300,
+        "runtime": "python3.8",
+        "vpc": {},
+        "versionLogicalId": "EtlUnderscoreprocessLambdaVersionmYGNNmZTbQTmyUbXFl3PJ3uAmjGcAhMgbZckRsqQf8"
+      }
+    },
+    "resources": {
+      "Resources": {
+        "SnowflakeStagingOutbucket": {
+          "Type": "AWS::S3::Bucket",
+          "Properties": {
+            "AccessControl": "BucketOwnerFullControl",
+            "BucketName": "dst-bucket-snowpipeline"
+          }
+        }
+      },
+      "Outputs": {}
+    },
+    "configValidationMode": "warn",
+    "serviceFilename": "serverless.yml",
+    "initialServerlessConfig": {
+      "service": "my-etl-process",
+      "plugins": {
+        "$ref": "$[\"service\"][\"plugins\"]"
+      },
+      "custom": {
+        "$ref": "$[\"service\"][\"custom\"]"
+      },
+      "provider": {
+        "$ref": "$[\"service\"][\"provider\"]"
+      },
+      "package": {
+        "exclude": [
+          "__cache__/**",
+          "__pycache__/**",
+          "node_modules/**",
+          "package.json",
+          "package-lock.json",
+          "snowflake.sql",
+          "readme.md"
+        ],
+        "deploymentBucket": "serverless-deploy-bucket-mia",
+        "artifact": "/Users/mia/Desktop/etlProcess/.serverless/my-etl-process.zip",
+        "artifactDirectoryName": "serverless/my-etl-process/dev/1645564343421-2022-02-22T21:12:23.421Z"
+      },
+      "functions": {
+        "$ref": "$[\"service\"][\"functions\"]"
+      },
+      "resources": {
+        "$ref": "$[\"service\"][\"resources\"]"
+      }
+    },
+    "layers": {},
+    "isDashboardMonitoringPreconfigured": false,
+    "artifact": "/Users/mia/Desktop/etlProcess/.serverless/my-etl-process.zip"
+  },
+  "package": {
+    "artifactDirectoryName": "serverless/my-etl-process/dev/1645564343421-2022-02-22T21:12:23.421Z",
+    "artifact": "my-etl-process.zip"
+  }
+}

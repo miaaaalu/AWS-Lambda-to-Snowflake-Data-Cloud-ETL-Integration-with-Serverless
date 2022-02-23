@@ -1,114 +1,76 @@
-# Welcome to Serverless!
-#
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
-# For full config options, check the docs:
-#    docs.serverless.com
-#
-# Happy Coding!
+service: my-etl-pipeline
 
-service: etlprocess
-# app and org for use with dashboard.serverless.com
-#app: your-app-name
-#org: your-org-name
+plugins:
+  - serverless-prune-plugin
+  - serverless-python-requirements
+  - serverless-dotenv-plugin
 
-# You can pin your service to only deploy with a specific Serverless version
-# Check out our docs for more details
-frameworkVersion: '3'
+custom:
+  pythonRequirements:
+    dockerizePip: false
+  prune:
+    automatic: true
+    number: 3
+  dotenv:
+    include:
+      - TZ_LOCAL
 
 provider:
   name: aws
   runtime: python3.8
+  memorySize: 256
+  timeout: 300
+  deploymentBucket:
+    name: serverless-deploy-bucket-mia
+    maxPreviousDeploymentArtifacts: 3
+  stage: dev
+  region: ap-southeast-2
+  versionFunctions: true
+  layers: arn:aws:lambda:ap-southeast-2:770693421928:layer:Klayers-python38-pandas:48
 
-# you can overwrite defaults here
-#  stage: dev
-#  region: us-east-1
+# Lambda IAM Role Configuration
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:HeadObject
+        - s3:GetObject
+        - s3:putObject
+      Resource:
+        - arn:aws:s3:::src-bucket-datapipeline/*
+        - arn:aws:s3:::dst-bucket-snowpipeline/*
+    - Effect: Allow
+      Action:
+        - logs:*
+      Resource: "*"
 
-# you can add statements to the Lambda function's IAM Role here
-#  iam:
-#    role:
-#      statements:
-#        - Effect: "Allow"
-#          Action:
-#            - "s3:ListBucket"
-#          Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#        - Effect: "Allow"
-#          Action:
-#            - "s3:PutObject"
-#          Resource:
-#            Fn::Join:
-#              - ""
-#              - - "arn:aws:s3:::"
-#                - "Ref" : "ServerlessDeploymentBucket"
-#                - "/*"
+# exclude packaging information 
+package:
+  exclude:
+    - __cache__/**
+    - __pycache__/**
+    - node_modules/**
+    - 'package.json'
+    - 'package-lock.json'
+    - 'snowflake.sql'
+    - 'readme.md'
 
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
-
-# you can add packaging information here
-#package:
-#  patterns:
-#    - '!exclude-me.py'
-#    - '!exclude-me-dir/**'
-#    - include-me.py
-#    - include-me-dir/**
-
+# Lambda Function
 functions:
-  hello:
-    handler: handler.hello
-#    The following are a few example events you can configure
-#    NOTE: Please make sure to change your handler code to work with those events
-#    Check the event documentation for details
-#    events:
-#      - httpApi:
-#          path: /users/create
-#          method: get
-#      - websocket: $connect
-#      - s3: ${env:BUCKET}
-#      - schedule: rate(10 minutes)
-#      - sns: greeter-topic
-#      - stream: arn:aws:dynamodb:region:XXXXXX:table/foo/stream/1970-01-01T00:00:00.000
-#      - alexaSkill: amzn1.ask.skill.xx-xx-xx-xx
-#      - alexaSmartHome: amzn1.ask.skill.xx-xx-xx-xx
-#      - iot:
-#          sql: "SELECT * FROM 'some_topic'"
-#      - cloudwatchEvent:
-#          event:
-#            source:
-#              - "aws.ec2"
-#            detail-type:
-#              - "EC2 Instance State-change Notification"
-#            detail:
-#              state:
-#                - pending
-#      - cloudwatchLog: '/aws/lambda/hello'
-#      - cognitoUserPool:
-#          pool: MyUserPool
-#          trigger: PreSignUp
-#      - alb:
-#          listenerArn: arn:aws:elasticloadbalancing:us-east-1:XXXXXX:listener/app/my-load-balancer/50dc6c495c0c9188/
-#          priority: 1
-#          conditions:
-#            host: example.com
-#            path: /hello
+  etl_process:
+    handler: etl_process.lambda_handler
+    name: my_etl_lambda
+    description: "AWS-Lambda-to-Snowflake-Data-Cloud-ETL-Integration"
+    events:
+      - s3:
+          bucket: src-bucket-datapipeline
+          event: s3:ObjectCreated:*
+          existing: true
 
-#    Define function environment variables here
-#    environment:
-#      variable2: value2
-
-# you can add CloudFormation resource templates here
-#resources:
-#  Resources:
-#    NewResource:
-#      Type: AWS::S3::Bucket
-#      Properties:
-#        BucketName: my-new-bucket
-#  Outputs:
-#     NewOutput:
-#       Description: "Description for the output"
-#       Value: "Some output value"
+#  Build Destination Bucket
+resources:
+  Resources:
+    SnowflakeStagingOutbucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        AccessControl: BucketOwnerFullControl
+        BucketName: dst-bucket-snowpipeline
