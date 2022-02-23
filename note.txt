@@ -1,8 +1,0 @@
-# Challenge 
-
-### Fighting with snowpipe 
-snowpipe doesn't support load speicifc files to specific tables. I tried to add patterns or file names speicifc the table name. however, this is not available in snowpipe. After researching from the official document,I have two options. (1) Create different stages to my pipes, (2) Create different folders in my S3 Dstination Bucket. I don't want to create to much stages to mess up the back end, also two much stages may need to create different buckts or notifications. so I create different folders in my S3, then specify the folder path of the stage in snowpipe. Then finally sovle this issue.
-
-
-QueueOwnerAWSAccountId
-GetQueueUrl arn:aws:sqs:ap-southeast-2:486855810640:sf-snowpipe-AIDAXCWW6DZILFHBVQMMV-C8qof2NHZLas0q_FNvbOcw
