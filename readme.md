@@ -92,7 +92,7 @@ TZ_LOCAL = ${your timezone}
 ```
 ### 6. Modify serverless.yml file
 ```Powershell
-For details serverless.yml
+For details check serverless.yml
 ```
 
 ### 7. Deploy
@@ -101,8 +101,14 @@ For details serverless.yml
 % sls deploy
 ```
 
-# Step 3 — Event Notification for S3 Bucket
+# Step 3 — Add Event Notification for S3 Bucket
 
 ```
-Create an Event Notification for target S3 bucket. This notification informs Snowpipe via an SQS queue when files are ready to load. Please note the ARN of the SQS queue for the stage from the notification_channel column once you execute show pipes command. Copy the ARN to a notepad.
+This notification informs Snowpipe via an SQS queue when files are ready to load.
+
+Please note the SQS queue ARN from the notification_channel column once you execute 「show pipes」 command. 
+
+Copy the ARN to a notepad.
+
+Then paste on the Event Notification for destination S3 bucket.
 ```
