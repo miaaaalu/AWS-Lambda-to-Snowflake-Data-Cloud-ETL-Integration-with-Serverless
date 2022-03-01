@@ -56,7 +56,7 @@ For details check snowflake.sql
 # Instal Serverless Prune Plugin 
 % sudo sls plugin install -n serverless-prune-plugin
 
-# Install serverless python requirements (https://github.com/UnitedIncome/serverless-python-requirements)s
+# Install serverless python requirements (https://github.com/UnitedIncome/serverless-python-requirements)
 % sudo sls plugin install -n serverless-python-requirements
 
 # Install serverless dotenv plugin
@@ -64,29 +64,30 @@ For details check snowflake.sql
 ```
 ### 4. Modify .python file for ETL Process
 ```powershell
-pandas library is by default not available in AWS Lambda Python environments. For using pandas library in Lambda function, a requirements.txt needs to be attached, OR a Lambda Layer needs to attached to the Lambda function. 
-
 # Rename python file
 % mv handler.py ${project_handle}.py
 
 # Handle your Python packaging
+pandas library is by default not available in AWS Lambda Python environments. 
+For using pandas library in Lambda function, a requirements.txt needs to be attached, 
+OR a Lambda Layer needs to attached to the Lambda function. 
 # option 1: attach a requirements.txt with needed library
 % touch requirements.txt
-% pip install -r requirements.txt
 % echo “pandas” >> requirements.txt
+% pip install -r requirements.txt
 
-# option 2: add the layer from Klayers to your lambda function in serverless.yml (recommend)
+# option 2: add the pandas layer from Klayers in serverless.yml (recommend)
 https://github.com/keithrozario/Klayers/tree/master/deployments/python3.8/arns
 
-# ETL Process:
+# ETL Process
 For details check etl_process.py
 ```
 ### 5. Create .env file and put environment variables if need
 ```env
-APPLICATION=your project name
-STAGE=your stage
-REGION=your region
-TZ_LOCAL=your timezone
+APPLICATION = ${your project name}
+STAGE = ${your stage}
+REGION = ${your region}
+TZ_LOCAL = ${your timezone}
 ```
 ### 6. Modify serverless.yml file
 ```Powershell

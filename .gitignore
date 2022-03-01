@@ -1,3 +1,5 @@
 .serverless/
 note.txt
 .DS_Store
+source.csv
+copy into script.sql 
