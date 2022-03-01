@@ -1,9 +1,9 @@
 # Overview of the solution
-The project includes a local environment to inspect the data and deploy the stack using the AWS S3, Lambda in Serverless Framework, AWS SNS, and Snowflake Snowpipe. 
+The project includes a local environment to inspect the data and deploy the stack using the AWS S3, Lambda in Serverless Framework, AWS SQS, and Snowflake Snowpipe. 
 
-The deployment includes an obect-based event that triggers an AWS Lambda function. The function ingests and stores the raw data from an external source, transforms the content, and saves the clean information. 
+The deployment includes an object-based event that triggers an AWS Lambda function. The function ingests and stores the raw data from an external source, transforms the content, and saves clean information. 
 
-The raw and clean data is stored in a S3 destination bucket with a SQS event notifications,which will deliver data to snowpipe
+The raw and clean data is stored in an S3 destination bucket with SQS event notifications, which will deliver data to snowpipe.
 
 The following diagram illustrates my architecture:
 
@@ -11,19 +11,19 @@ The following diagram illustrates my architecture:
 
 The solution includes the following high-level steps:
 
-1. Design the star schema for source file 
+1. Design the star schema for the source file 
 2. Snowflake Snowpipe Configuration
-3. Build and test ETL process.
-2. Inspect the function and the AWS Cloudformation template and deploy in Serverless Framwork.
-5. Create an Event Notification for S3 destination bucket. 
+3. Build and test the ETL process
+2. Inspect the function and the AWS Cloudformation template and deploy in Serverless Framework
+5. Create an Event Notification for the S3 destination buck
 
 # Preparation
 
 ### AWS
 ```powershell
 1. Create source bucket in S3
-2. Create deploy bucket for serverless package in S3 
-3. Create IAM User for snowflake with S3 full access policies
+2. Create deploy bucket for the serverless package in S3 
+3. Create an IAM User for snowflake with S3 full access policies
 ```
 ### Python 
 ```powershell
@@ -32,9 +32,9 @@ The solution includes the following high-level steps:
 
 # Step 1 — Snowflake Snowpipe Configuration
 ```powershell
-1. Dataabase Creation
+1. Database Creation
 2. Table Creation (5 tables in this project)
-3. File Format  Creation with AWS Crendentials
+3. File Format  Creation with AWS Credentials
 4. Pipe Creation 
 For details check snowflake.sql
 ```
@@ -68,9 +68,9 @@ For details check snowflake.sql
 % mv handler.py ${project_handle}.py
 
 # Handle your Python packaging
-By default，pandas library is not available in AWS Lambda Python environments. 
+By default, pandas library is not available in AWS Lambda Python environments. 
 For using pandas library in Lambda function, a requirements.txt needs to be attached.
-OR using a Lambda Layer needs to attached to the Lambda function.
+OR add Python pandas layer to AWS Lambda in serverless.yml.
 
 # option 1: attach a requirements.txt with needed library
 % touch requirements.txt
@@ -78,7 +78,8 @@ OR using a Lambda Layer needs to attached to the Lambda function.
 % pip install -r requirements.txt
 
 # option 2: add the pandas layer from Klayers in serverless.yml (recommend)
-https://github.com/keithrozario/Klayers/tree/master/deployments/python3.8/arns
+[source from](https://github.com/keithrozario/Klayers/tree/master/deployments/python3.8/arns)
+
 
 # ETL Process
 For details check etl_process.py
