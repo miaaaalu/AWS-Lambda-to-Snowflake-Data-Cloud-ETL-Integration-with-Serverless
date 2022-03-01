@@ -78,8 +78,7 @@ OR add Python pandas layer to AWS Lambda in serverless.yml.
 % pip install -r requirements.txt
 
 # option 2: add the pandas layer from Klayers in serverless.yml (recommend)
-[source from](https://github.com/keithrozario/Klayers/tree/master/deployments/python3.8/arns)
-
+source from Klayers: https://github.com/keithrozario/Klayers/tree/master/deployments/python3.8/arns 
 
 # ETL Process
 For details check etl_process.py
