@@ -68,9 +68,10 @@ For details check snowflake.sql
 % mv handler.py ${project_handle}.py
 
 # Handle your Python packaging
-pandas library is by default not available in AWS Lambda Python environments. 
-For using pandas library in Lambda function, a requirements.txt needs to be attached, 
-OR a Lambda Layer needs to attached to the Lambda function. 
+By default，pandas library is not available in AWS Lambda Python environments. 
+For using pandas library in Lambda function, a requirements.txt needs to be attached.
+OR using a Lambda Layer needs to attached to the Lambda function.
+
 # option 1: attach a requirements.txt with needed library
 % touch requirements.txt
 % echo “pandas” >> requirements.txt
