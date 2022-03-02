@@ -17,8 +17,21 @@ The solution includes the following high-level steps:
 2. Inspect the function and the AWS Cloudformation template and deploy in Serverless Framework
 5. Create an Event Notification for the S3 destination buck
 
-# Preparation
+# Test Environment 
+```powershell
+* macOS Big Sur Version 11.5.2
 
+* Python 3.8
+
+* Snowflake
+
+* AWS (S3, Lambda, and SQS)
+
+* Serverless Framework
+```
+
+# Process Design 
+## Preparation
 ### AWS
 ```powershell
 1. Create source bucket in S3
@@ -30,7 +43,7 @@ The solution includes the following high-level steps:
 3.8 preferable
 ```
 
-# Step 1 — Snowflake Snowpipe Configuration
+## Step 1 — Snowflake Snowpipe Configuration
 ```powershell
 1. Database Creation
 2. Table Creation (5 tables in this project)
@@ -39,7 +52,7 @@ The solution includes the following high-level steps:
 For details check snowflake.sql
 ```
 
-# Step 2 — Serverless Framework Deploy
+## Step 2 — Serverless Framework Deploy
 
 ### 1. Serverless Project Initialization
 ```powershell
@@ -101,7 +114,7 @@ For details check serverless.yml
 % sls deploy
 ```
 
-# Step 3 — Add Event Notification for S3 Bucket
+## Step 3 — Add Event Notification for S3 Bucket
 
 ```
 This notification informs Snowpipe via an SQS queue when files are ready to load.

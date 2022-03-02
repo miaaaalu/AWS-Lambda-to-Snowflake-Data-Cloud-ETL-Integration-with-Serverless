@@ -67,14 +67,7 @@ CREATE OR REPLACE STAGE S3_to_Snowflake_Stage
     CREDENTIALS = (AWS_KEY_ID = '**************' AWS_SECRET_KEY = '**************')
     file_format = DataPipeline_CSV_Format;
 
-//create a pipe
-CREATE OR REPLACE PIPE DimDate_Pipe
-    AUTO_INGEST = TRUE 
-    AS 
-    COPY INTO DIMDATE 
-    FROM @S3_to_Snowflake_Stage/DimDate.csv
-    FILE_FORMAT = (FORMAT_NAME = DataPipeline_CSV_Format);
-    
+//create pipes
 CREATE OR REPLACE PIPE DimDate_Pipe
     AUTO_INGEST = TRUE 
     AS COPY INTO DIMDATE 
@@ -106,10 +99,10 @@ CREATE OR REPLACE PIPE FactTable_Pipe
     FILE_FORMAT = (FORMAT_NAME = DataPipeline_CSV_Format);
 
 // PIPES
-SHOW PIPES; //check pipes to get notification_channel url
-SELECT SYSTEM$PIPE_STATUS('<PIPE NAME>'); // Check Pipe Status if need
-SELECT * FROM table(information_schema.copy_history(table_name=>'<TABLE NAME>', start_time=> dateadd(hours, -1, current_timestamp()))); //Show PIPE COPY history in specific table 
-ALTER PIPE <PIPE NAME> REFRESH; // REFRESH PIPE 
+SHOW PIPES; -- check pipes to get notification_channel url
+SELECT SYSTEM$PIPE_STATUS('<PIPE NAME>'); -- Check Pipe Status if need
+SELECT * FROM table(information_schema.copy_history(table_name=>'<TABLE NAME>', start_time=> dateadd(hours, -1, current_timestamp()))); -- Show PIPE COPY history in specific table 
+ALTER PIPE <PIPE NAME> REFRESH; -- REFRESH PIPE 
 
 // EXTERNAL STAGE
 LIST @S3_to_Snowflake_Stage; // Check files in external stage 
