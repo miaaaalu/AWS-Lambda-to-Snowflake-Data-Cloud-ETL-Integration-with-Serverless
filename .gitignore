@@ -3,4 +3,5 @@ note.txt
 .DS_Store
 source.csv
 FullScript.sql
-FullScriptEtlProcess.py
+FullScript.py
+FullScript.ipynb
