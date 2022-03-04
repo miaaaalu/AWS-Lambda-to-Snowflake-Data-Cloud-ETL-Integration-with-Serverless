@@ -1,7 +1,8 @@
 .serverless/
-note.txt
 .DS_Store
-source.csv
 FullScript.sql
 FullScript.py
 FullScript.ipynb
+data.ctl
+note.txt
+rawfile.csv
