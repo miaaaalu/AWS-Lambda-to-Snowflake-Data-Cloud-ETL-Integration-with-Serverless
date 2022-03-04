@@ -7,7 +7,7 @@ The raw and clean data is stored in an S3 destination bucket with SQS event noti
 
 The following diagram illustrates my architecture:
 
-![alt text](https://github.com/miaaaalu/AWS-Lambda-to-Snowflake-Data-Cloud-ETL-Integration-with-Serverless/blob/master/ETL_Pipeline.jpg?raw=true)
+![alt text](https://github.com/miaaaalu/AWS-Lambda-to-Snowflake-Data-Cloud-ETL-Integration-with-Serverless/blob/master/data_pipeline.jpg?raw=true)
 
 The solution includes the following high-level steps:
 
